@@ -1,0 +1,70 @@
+{
+  "version": "1.0.0",
+  "interface_protocol": "pytorch_task_v1",
+  "entrypoint": "python tasks/<task_id>/task.py",
+  "required_functions": [
+    "get_task_metadata",
+    "set_seed",
+    "get_device",
+    "make_dataloaders",
+    "build_model",
+    "train",
+    "evaluate",
+    "predict",
+    "save_artifacts"
+  ],
+  "tasks": [
+    {
+      "task_id": "hw2_mlp_iris_adam",
+      "series": "mlp",
+      "description": "Two-layer MLP on Iris with Adam optimizer and dropout regularisation",
+      "dataset": "sklearn.datasets.load_iris",
+      "model": "MLP (4->32->16->3) with ReLU and Dropout",
+      "optimizer": "Adam",
+      "new_feature": "Dropout regularisation",
+      "input_dim": 4,
+      "output_dim": 3,
+      "metrics": ["accuracy", "f1_macro"],
+      "pass_threshold": {"accuracy": 0.90}
+    },
+    {
+      "task_id": "hw2_linreg_california_rmsprop",
+      "series": "linreg",
+      "description": "Linear regression on California Housing with RMSProp and batch normalisation",
+      "dataset": "sklearn.datasets.fetch_california_housing",
+      "model": "Linear with BatchNorm1d",
+      "optimizer": "RMSProp",
+      "new_feature": "Batch normalisation on input features",
+      "input_dim": 8,
+      "output_dim": 1,
+      "metrics": ["mse", "r2"],
+      "pass_threshold": {"r2": 0.55}
+    },
+    {
+      "task_id": "hw2_knn_wine_cosine",
+      "series": "knn",
+      "description": "k-Nearest Neighbors on Wine dataset with cosine distance metric",
+      "dataset": "sklearn.datasets.load_wine",
+      "model": "KNN (k=5) with cosine distance",
+      "optimizer": "N/A (non-parametric)",
+      "new_feature": "Cosine distance instead of Euclidean",
+      "input_dim": 13,
+      "output_dim": 3,
+      "metrics": ["accuracy", "f1_macro"],
+      "pass_threshold": {"accuracy": 0.85}
+    },
+    {
+      "task_id": "hw2_logreg_breast_cancer_adagrad",
+      "series": "logreg",
+      "description": "Binary logistic regression on Breast Cancer with Adagrad and early stopping",
+      "dataset": "sklearn.datasets.load_breast_cancer",
+      "model": "Linear (30->2)",
+      "optimizer": "Adagrad",
+      "new_feature": "Early stopping with patience",
+      "input_dim": 30,
+      "output_dim": 2,
+      "metrics": ["accuracy", "precision", "recall", "f1"],
+      "pass_threshold": {"accuracy": 0.93}
+    }
+  ]
+}

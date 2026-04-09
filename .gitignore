@@ -1,0 +1,12 @@
+**/output/
+__pycache__/
+*.py[cod]
+*.pt
+*.pth
+*.ckpt
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.vscode/
+.claude/
