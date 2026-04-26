@@ -4,7 +4,14 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset
-from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    mean_squared_error,
+    precision_score,
+    r2_score,
+    recall_score,
+)
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_DIR = os.path.join(SCRIPT_DIR, "output")
@@ -14,7 +21,7 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 def get_task_metadata():
     return {
         "task_id": "hw2_logreg_breast_cancer_adagrad",
-        "description": "Binary logistic regression on Breast Cancer with Adagrad and early stopping",
+        "description": "MLP classifier on Breast Cancer with Adagrad and early stopping",
         "input_dim": 30,
         "output_dim": 2,
     }
@@ -54,7 +61,14 @@ def make_dataloaders(train_ratio=0.8, batch_size=32):
 
 def build_model(device=None):
     device = device or get_device()
-    return nn.Sequential(nn.Linear(30, 2)).to(device)
+    return nn.Sequential(
+        nn.Linear(30, 64),
+        nn.ReLU(),
+        nn.Dropout(0.1),
+        nn.Linear(64, 32),
+        nn.ReLU(),
+        nn.Linear(32, 2),
+    ).to(device)
 
 
 def _val_loss(model, val_loader, device):
@@ -117,6 +131,8 @@ def evaluate(model, data_loader, device):
     y_pred = np.array(all_pred)
     y_true = np.array(all_true)
     return {
+        "mse": float(mean_squared_error(y_true, y_pred)),
+        "r2": float(r2_score(y_true, y_pred)),
         "accuracy": float(accuracy_score(y_true, y_pred)),
         "precision": float(precision_score(y_true, y_pred, zero_division=0)),
         "recall": float(recall_score(y_true, y_pred, zero_division=0)),
@@ -141,7 +157,7 @@ def save_artifacts(model, metrics, output_dir):
 if __name__ == "__main__":
     set_seed(42)
     device = get_device()
-    print("Task: Logistic Regression (Breast Cancer + Adagrad + Early Stopping)")
+    print("Task: MLP Classifier (Breast Cancer + Adagrad + Early Stopping)")
     print(f"Device: {device}")
 
     train_loader, val_loader = make_dataloaders()
@@ -151,8 +167,14 @@ if __name__ == "__main__":
     train_m = evaluate(model, train_loader, device)
     val_m = evaluate(model, val_loader, device)
 
-    print(f"\nTrain Acc: {train_m['accuracy']:.4f}, F1: {train_m['f1']:.4f}")
-    print(f"Val   Acc: {val_m['accuracy']:.4f}, F1: {val_m['f1']:.4f}")
+    print(
+        f"\nTrain MSE: {train_m['mse']:.4f}, R2: {train_m['r2']:.4f}, "
+        f"Acc: {train_m['accuracy']:.4f}, F1: {train_m['f1']:.4f}"
+    )
+    print(
+        f"Val   MSE: {val_m['mse']:.4f}, R2: {val_m['r2']:.4f}, "
+        f"Acc: {val_m['accuracy']:.4f}, F1: {val_m['f1']:.4f}"
+    )
     print(f"Val   Precision: {val_m['precision']:.4f}, Recall: {val_m['recall']:.4f}")
 
     if val_m["accuracy"] > 0.93:

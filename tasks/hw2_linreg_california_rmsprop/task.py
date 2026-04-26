@@ -54,19 +54,25 @@ def make_dataloaders(train_ratio=0.8, batch_size=256):
     return train_loader, val_loader
 
 
-class LinearRegBN(nn.Module):
+class MLPRegressor(nn.Module):
     def __init__(self, input_dim=8):
         super().__init__()
-        self.bn = nn.BatchNorm1d(input_dim)
-        self.linear = nn.Linear(input_dim, 1)
+        self.net = nn.Sequential(
+            nn.BatchNorm1d(input_dim),
+            nn.Linear(input_dim, 32),
+            nn.ReLU(),
+            nn.Linear(32, 16),
+            nn.ReLU(),
+            nn.Linear(16, 1),
+        )
 
     def forward(self, x):
-        return self.linear(self.bn(x))
+        return self.net(x)
 
 
 def build_model(device=None):
     device = device or get_device()
-    return LinearRegBN().to(device)
+    return MLPRegressor().to(device)
 
 
 def train(model, train_loader, val_loader, device, epochs=60, lr=1e-2):
@@ -124,7 +130,7 @@ def save_artifacts(model, metrics, output_dir):
 if __name__ == "__main__":
     set_seed(42)
     device = get_device()
-    print("Task: Linear Regression (California Housing + RMSProp + BatchNorm)")
+    print("Task: MLP Regressor (California Housing + RMSProp + BatchNorm)")
     print(f"Device: {device}")
 
     train_loader, val_loader = make_dataloaders()

@@ -4,7 +4,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset
-from sklearn.metrics import f1_score, accuracy_score
+from sklearn.metrics import accuracy_score, f1_score, mean_squared_error, r2_score
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_DIR = os.path.join(SCRIPT_DIR, "output")
@@ -104,6 +104,8 @@ def evaluate(model, data_loader, device):
     y_pred = np.array(all_pred)
     y_true = np.array(all_true)
     return {
+        "mse": float(mean_squared_error(y_true, y_pred)),
+        "r2": float(r2_score(y_true, y_pred)),
         "accuracy": float(accuracy_score(y_true, y_pred)),
         "f1_macro": float(f1_score(y_true, y_pred, average="macro", zero_division=0)),
     }
@@ -135,8 +137,14 @@ if __name__ == "__main__":
 
     train_m = evaluate(model, train_loader, device)
     val_m = evaluate(model, val_loader, device)
-    print(f"\nTrain  Acc: {train_m['accuracy']:.4f}  F1: {train_m['f1_macro']:.4f}")
-    print(f"Val    Acc: {val_m['accuracy']:.4f}  F1: {val_m['f1_macro']:.4f}")
+    print(
+        f"\nTrain  MSE: {train_m['mse']:.4f}  R2: {train_m['r2']:.4f}  "
+        f"Acc: {train_m['accuracy']:.4f}  F1: {train_m['f1_macro']:.4f}"
+    )
+    print(
+        f"Val    MSE: {val_m['mse']:.4f}  R2: {val_m['r2']:.4f}  "
+        f"Acc: {val_m['accuracy']:.4f}  F1: {val_m['f1_macro']:.4f}"
+    )
 
     if val_m["accuracy"] > 0.90:
         save_artifacts(model, val_m, OUTPUT_DIR)

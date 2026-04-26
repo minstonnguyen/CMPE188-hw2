@@ -1,40 +1,48 @@
 {
-  "version": "1.0.0",
-  "interface_protocol": "pytorch_task_v1",
-  "entrypoint": "python tasks/<task_id>/task.py",
-  "required_functions": [
-    "get_task_metadata",
-    "set_seed",
-    "get_device",
-    "make_dataloaders",
-    "build_model",
-    "train",
-    "evaluate",
-    "predict",
-    "save_artifacts"
-  ],
+  "version": "1.1.0",
+  "prompt_language": "en",
+  "interface_protocols": {
+    "pytorch_task_v1": {
+      "entrypoint": "python tasks/<task_id>/task.py",
+      "required_functions": [
+        "get_task_metadata",
+        "set_seed",
+        "get_device",
+        "make_dataloaders",
+        "build_model",
+        "train",
+        "evaluate",
+        "predict",
+        "save_artifacts"
+      ],
+      "evaluation_rules": [
+        "evaluate() must report MSE and R2 plus task-specific metrics.",
+        "main() must train, evaluate train/val, assert thresholds, and sys.exit(0/1)."
+      ]
+    }
+  },
   "tasks": [
     {
       "task_id": "hw2_mlp_iris_adam",
-      "series": "mlp",
-      "description": "Two-layer MLP on Iris with Adam optimizer and dropout regularisation",
+      "series": "Neural Networks (MLP)",
+      "description": "Two-layer MLP on Iris with Adam optimizer and dropout regularization",
       "dataset": "sklearn.datasets.load_iris",
-      "model": "MLP (4->32->16->3) with ReLU and Dropout",
+      "model": "MLP (4->32->16->3), ReLU + Dropout",
       "optimizer": "Adam",
-      "new_feature": "Dropout regularisation",
+      "new_feature": "Dropout regularization",
       "input_dim": 4,
       "output_dim": 3,
-      "metrics": ["accuracy", "f1_macro"],
+      "metrics": ["mse", "r2", "accuracy", "f1_macro"],
       "pass_threshold": {"accuracy": 0.90}
     },
     {
       "task_id": "hw2_linreg_california_rmsprop",
-      "series": "linreg",
-      "description": "Linear regression on California Housing with RMSProp and batch normalisation",
+      "series": "Neural Networks (MLP)",
+      "description": "MLP regressor on California Housing with RMSProp and BatchNorm",
       "dataset": "sklearn.datasets.fetch_california_housing",
-      "model": "Linear with BatchNorm1d",
+      "model": "MLP regressor (8->32->16->1), BatchNorm + ReLU",
       "optimizer": "RMSProp",
-      "new_feature": "Batch normalisation on input features",
+      "new_feature": "Batch normalization on input features",
       "input_dim": 8,
       "output_dim": 1,
       "metrics": ["mse", "r2"],
@@ -42,28 +50,28 @@
     },
     {
       "task_id": "hw2_knn_wine_cosine",
-      "series": "knn",
-      "description": "k-Nearest Neighbors on Wine dataset with cosine distance metric",
+      "series": "Neural Networks (MLP)",
+      "description": "MLP classifier on Wine with SGD optimizer and cosine annealing schedule",
       "dataset": "sklearn.datasets.load_wine",
-      "model": "KNN (k=5) with cosine distance",
-      "optimizer": "N/A (non-parametric)",
-      "new_feature": "Cosine distance instead of Euclidean",
+      "model": "MLP classifier (13->64->32->3), ReLU + Dropout",
+      "optimizer": "SGD + CosineAnnealingLR",
+      "new_feature": "Learning-rate scheduling + label smoothing",
       "input_dim": 13,
       "output_dim": 3,
-      "metrics": ["accuracy", "f1_macro"],
+      "metrics": ["mse", "r2", "accuracy", "f1_macro"],
       "pass_threshold": {"accuracy": 0.85}
     },
     {
       "task_id": "hw2_logreg_breast_cancer_adagrad",
-      "series": "logreg",
-      "description": "Binary logistic regression on Breast Cancer with Adagrad and early stopping",
+      "series": "Neural Networks (MLP)",
+      "description": "MLP binary classifier on Breast Cancer with Adagrad and early stopping",
       "dataset": "sklearn.datasets.load_breast_cancer",
-      "model": "Linear (30->2)",
+      "model": "MLP classifier (30->64->32->2), ReLU + Dropout",
       "optimizer": "Adagrad",
-      "new_feature": "Early stopping with patience",
+      "new_feature": "Early stopping with patience on validation loss",
       "input_dim": 30,
       "output_dim": 2,
-      "metrics": ["accuracy", "precision", "recall", "f1"],
+      "metrics": ["mse", "r2", "accuracy", "precision", "recall", "f1"],
       "pass_threshold": {"accuracy": 0.93}
     }
   ]
